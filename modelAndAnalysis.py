@@ -6,6 +6,8 @@ from sklearn.ensemble import RandomForestRegressor
 import matplotlib.pyplot as plt
 import seaborn as sns
 import re
+from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import train_test_split
 
 
 def toNum2(txt):
@@ -73,6 +75,8 @@ def dzielniceWaw(txt):
 
 def pietra(txt):
     if type(txt) is str:
+        if '0' in txt:
+            return 0
         if '1' in txt:
             return 1
         elif '2' in txt:
@@ -97,7 +101,16 @@ def cities(x):
         except:
             return 'unknown'
 
-dfMazowieckie=pd.read_csv('dfWarszawa',index_col=0)
+def region(x):
+    if x.split()[4]=='Warszawa':
+        try:
+            return x.split()[5]
+        except:
+            return ''
+    else:
+        return ''
+
+dfMazowieckie=pd.read_csv('dfMazowieckie.csv',index_col=0)
 concat=dfMazowieckie
 
 #dfWarszawa1 = pd.read_csv('dfWarszawa', index_col=0)
@@ -118,58 +131,65 @@ concat = concat[concat['powierzchnia_corr'] > 0]
 concat = concat[concat['cena_corr'] > 0]
 concat['lPokoi'] = concat['lPokoi'].apply(lambda x: toNum3(x))
 #ustalanie powiatów
-districts=concat['dzielnica'].apply(lambda x: x.split()[4])
-cities=concat['dzielnica'].apply(lambda x: cities(x))
-
+concat['districts']=concat['dzielnica'].apply(lambda x: x.split()[4])
+cities_corr=concat['dzielnica'].apply(lambda x: cities(x))
+concat['cities_corr']=cities_corr
+region=concat['dzielnica'].apply(lambda x: region(x))
+concat['region_corr']=region
 cities_counts=cities.value_counts(ascending=False)
-plt.scatter(cities_counts.iloc[:],cities_counts.index.values)
 
-districts_counts=districts.value_counts(ascending=False)
-plt.scatter(districts_counts.iloc[:],districts_counts.index.values)
-
-
-
-
-
-
+###to poniżej powinno być ostatnią linijką poprawy
 concat = pd.get_dummies(concat, columns=['rodzajZabudowy', 'materialBudynku', 'stanWykonczenia', 'okna', 'rynek',
-                                         'dzielnica_corr'])
-concat = concat.drop(['dzielnica', 'powierzchnia', 'powierzchniaDzialki', 'lPieter', 'cena', 'cena_corr'], axis=1)
+                                         'cities_corr','districts','region_corr'])
+############
+concat_dropped = concat.drop(['dzielnica', 'powierzchnia', 'powierzchniaDzialki', 'lPieter', 'cena', 'cena_corr',], axis=1)
 
-concat['rokBudowy'] = concat['rokBudowy'].replace(to_replace=0, value=1990)
+concat_dropped['rokBudowy'] = concat_dropped['rokBudowy'].replace(to_replace=0, value=1990)
 
-concat['rokBudowy'] = concat['rokBudowy'].astype('int')
-concat = concat.fillna(0)
-concat['cena/m'].hist()
-concat = concat[concat['cena/m'] < 2e6]
-concat['cena/m'].hist(bins=200)
-concat = concat[concat['cena/m'] < 40000]
-concat['cena/m'].hist(bins=200)
-y = concat.loc[:, 'cena/m'].values
-x = concat.drop(['cena/m'], axis=1).iloc[:, :].values
+concat_dropped['rokBudowy'] = concat_dropped['rokBudowy'].astype('int')
+concat_dropped = concat_dropped.fillna(0)
+concat_dropped['cena/m'].hist()
+concat_dropped = concat_dropped[concat_dropped['cena/m'] < 2e6]
+concat_dropped['cena/m'].hist(bins=200)
+plt.hist(concat_dropped['cena/m'],bins=200)
 
-rf = RandomForestRegressor(max_depth=30, max_features=10, min_samples_leaf=3, min_samples_split=2)
+concat_dropped = concat_dropped[concat_dropped['cena/m'] < 100000]
+plt.hist(concat_dropped['cena/m'],bins=200)
+
+concat_dropped = concat_dropped[concat_dropped['cena/m'] < 20000]
+concat_dropped['cena/m'].hist(bins=200)
+
+y = concat_dropped.loc[:, 'cena/m'].values
+x = concat_dropped.drop(['cena/m'], axis=1).iloc[:, :].values
+
 rf = RandomForestRegressor()
-rf.fit(x, y)
-rf.score(x, y)
-import pickle
-
-pickle.dump(rf, open('rf_model', 'wb'))
-from sklearn.model_selection import GridSearchCV
-
 param_grid = {
     'bootstrap': [True],
     'max_depth': [2, 3, 5, 10, 20, 30, 50],
-    'max_features': [2, 3, 5, 10],
+    'max_features': [20,30,50],
     'min_samples_leaf': [3, 4, 5],
     'min_samples_split': [2, 3, 5, 10, 20, 30],
 }
 
 grid_search = GridSearchCV(estimator=rf, param_grid=param_grid,
-                           cv=3, n_jobs=-1, verbose=2)
-
+                           cv=3, n_jobs=-1, verbose=1)
 grid_search.fit(x, y)
 grid_search.best_params_
+
+rf = RandomForestRegressor(max_depth=50, max_features=50, min_samples_leaf=3, min_samples_split=2)
+
+X_train, X_test, y_train, y_test = train_test_split(x, y, test_size=0.33, random_state=42)
+rf.fit(X_train, y_train)
+rf.score(X_train, y_train)
+rf.score(X_test, y_test)
+import pickle
+
+pickle.dump(rf, open('rf_model', 'wb'))
+
+
+
+
+
 
 import statistics
 
