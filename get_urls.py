@@ -33,15 +33,16 @@ def daneStrony(url):
 
 def linksDownload():
     links=[]
-    for i in range(1,89):
+    for i in range(1,400):
         print(i)
         #url='https://www.otodom.pl/pl/oferty/sprzedaz/dom/wiele-lokalizacji?distanceRadius=0&market=ALL&page='+str(i)+'&limit=24&by=DEFAULT&direction=DESC&locations%5B0%5D%5BregionId%5D=7&locations%5B0%5D%5BcityId%5D=920&locations%5B0%5D%5BsubregionId%5D=198&locations%5B1%5D%5BregionId%5D=7&locations%5B1%5D%5BcityId%5D=37519&locations%5B1%5D%5BsubregionId%5D=198&locations%5B2%5D%5BregionId%5D=7&locations%5B2%5D%5BcityId%5D=920&locations%5B2%5D%5BdistrictId%5D=1993&locations%5B2%5D%5BsubregionId%5D=198'
-        url='https://www.otodom.pl/pl/oferty/sprzedaz/dom/warszawa?distanceRadius=0&market=ALL&page='+str(i)+'&limit=24&by=DEFAULT&direction=DESC&locations[0][regionId]=7&locations[0][cityId]=26&locations[0][subregionId]=197'
+        #url='https://www.otodom.pl/pl/oferty/sprzedaz/dom/warszawa?distanceRadius=0&market=ALL&page='+str(i)+'&limit=24&by=DEFAULT&direction=DESC&locations[0][regionId]=7&locations[0][cityId]=26&locations[0][subregionId]=197'
+        url='https://www.otodom.pl/pl/oferty/sprzedaz/dom/mazowieckie?distanceRadius=0&market=ALL&page='+str(i)+'&limit=24&by=DEFAULT&direction=DESC&locations%5B0%5D%5BregionId%5D=7'
         Page=daneStrony(url)
         ls=Page.find_all('a', class_='css-19ukcmm es62z2j25')
         for l in ls:
             links.append(l['href'])
-        time.sleep(2) 
+        time.sleep(1)
     
     links=list(set(links))
     
@@ -54,6 +55,34 @@ def linksDownload():
     f.close()
     return links
 
+linksWarszawa=linksDownload()
+pd.DataFrame(np.array(linksWarszawa)).to_csv('mazowieckie_urls.csv')
+urls=[]
+'''
+path='/home/kacper/Dokumenty/GitHub/nieruchomosci-mazowieckie'
+file='urls_mazowieckie_domy.txt'
+with open(path+file) as f:
+    urls=f.readlines()
+'''
+
+listaMazowieckie=[]
+i=0
+for link in linksWarszawa:
+    print(i)
+    print(link)
+    try:
+        dane=daneDomu('https://www.otodom.pl'+link)
+    except:
+        print('porazka')
+    listaMazowieckie.append(dane)
+    i=i+1
+    time.sleep(randrange(1))
+
+dfMazowieckie=pd.DataFrame(listaMazowieckie,columns=['dzielnica','powierzchnia','lPokoi','powierzchniaDzialki','rodzajZabudowy','materialBudynku','rokBudowy',
+              'stanWykonczenia','okna','rynek','lPieter','cena'])
+dfMazowieckie.to_csv('dfMazowieckie.csv')
+dfWarszawa1=pd.read_csv('dfWarszawa',index_col=0)
+'''
 def toNum2(txt):
     if type(txt) is int:
         return txt
@@ -126,38 +155,6 @@ def pietra(txt):
              return 0
      else:
             return txt
-         
-
-linksWarszawa=linksDownload()
-
-urls=[]
-path='C:\\Users\\Lenovo\\Desktop\\otodom-scrapper-master\\src\\'
-file='urls_lomianki.txt'
-with open(path+file) as f:
-    urls=f.readlines()
-
-
-listaLomianki=[]
-i=0
-for link in urls:
-    #if i<4259:
-    #    i=i+1
-    #    continue
-    print(i)
-    print(link)
-    try:
-        dane=daneDomu(link)
-    except:
-        print('porazka')
-    listaLomianki.append(dane)
-    i=i+1
-    time.sleep(randrange(2)) 
-
-dfLomianki=pd.DataFrame(listaLomianki,columns=['dzielnica','powierzchnia','lPokoi','powierzchniaDzialki','rodzajZabudowy','materialBudynku','rokBudowy',
-              'stanWykonczenia','okna','rynek','lPieter','cena'])
-dfWarszawa.to_csv('dfWarszawa')
-dfWarszawa1=pd.read_csv('dfWarszawa',index_col=0)
-
 concat=pd.concat([dfLomianki, dfWarszawa1], join="inner")
 
 concat['powierzchnia_corr']=concat['powierzchnia'].apply(lambda x: toNum1(x))
@@ -300,4 +297,4 @@ x3=np.array([5,2003,112,1,2003,1,
             ])
 x3=np.transpose(x3.reshape(-1,1))
 rf.predict(x3)#7260 zł/m
-6434*
+'''

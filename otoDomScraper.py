@@ -85,26 +85,3 @@ def daneDomu(url):
     daneDomu=[dzielnica,powierzchnia,lPokoi,powierzchniaDzialki,rodzajZabudowy,materialBudynku,rokBudowy,
               stanWykonczenia,okna,rynek,lPieter,cena]
     return daneDomu
-#Warszawa, Bemowo
-'''
-urls=[]
-path='C:\\Users\\Lenovo\\Desktop\\otodom-scrapper-master\\src\\'
-file='urls_warszawa_mokotow.txt'
-with open(path+file) as f:
-    urls=f.readlines()
-    #print(lines)
-   
-
-listaDomow=[]
-for url in urls:
-    print(url)
-    print(type(url))
-    daneDom=daneDomu('https://www.otodom.pl/pl/oferta/pietrowy-dom-z-duza-dzilka-boernerowo-ID4cphB')
-    listaDomow.append(daneDom)
-    time.sleep(5) 
-
-dfDom=pd.DataFrame(listaDomow,columns=['powierzchnia','lPokoi','powierzchniaDzialki','rodzajZabudowy','materialBudynku','rokBudowy',
-              'stanWykonczenia','okna','rynek','lPieter','cena'])
-dfDom.to_csv(path+'dfDom_mokotow.csv')
-
-'''
