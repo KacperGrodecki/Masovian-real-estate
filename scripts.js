@@ -13,6 +13,9 @@ async function getData() {
         horsepower: car.Horsepower,
     })).filter(car => (car.mpg != null && car.horsepower != null));
 
+    // https://stackoverflow.com/questions/3580239/javascript-array-get-range-of-items
+    // console.log(cleaned[4]);
+    // console.log(cleaned.slice(0, 4));
     return cleaned;
 }
 
@@ -40,9 +43,25 @@ async function run() {
     const tensorData = convertToTensor(data);
     const {inputs, labels} = tensorData;
 
+    /**
+     * https://stackoverflow.com/questions/762011/whats-the-difference-between-using-let-and-var
+     * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/let
+     * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment
+     */
+    // {
+    //     let{a, b} = {a: 'apple', b: 'banana'};
+    //     console.log(JSON.stringify(a));
+    // }
+
     // Train the model
     await trainModel(model, inputs, labels);
     console.log('Done Training');
+
+    // Make predictions
+    /**
+     * Make some predictions using the model and compare them to the original data
+     */
+    testModel(model, data, tensorData);
 }
 
 
@@ -57,11 +76,20 @@ function createModel() {
     // Add a single input layer
     model.add(tf.layers.dense({inputShape: [1], units: 1, useBias: true}));
 
+    // Add another hidden layer(s)
+    model.add(tf.layers.dense({units: 50, activation: 'sigmoid'}));
+    model.add(tf.layers.dense({units: 50, activation: 'sigmoid'}));
+    model.add(tf.layers.dense({units: 50, activation: 'sigmoid'}));
+    model.add(tf.layers.dense({units: 50, activation: 'sigmoid'}));
+    model.add(tf.layers.dense({units: 50, activation: 'sigmoid'}));
+
+
     // Add an output layer
     model.add(tf.layers.dense({units: 1, useBias: true}));
 
     return model;
-}
+    }
+
 const model = createModel();
 tfvis.show.modelSummary({name: 'Model Summary'}, model);
 
@@ -119,7 +147,7 @@ async function trainModel(model, inputs, labels) {
   });
 
   const batchSize = 32;
-  const epochs = 100;
+  const epochs = 200;
 
   return await model.fit(inputs, labels, {
       batchSize,
@@ -134,6 +162,56 @@ async function trainModel(model, inputs, labels) {
 }
 
 
+// Make Predictions
+function testModel(model, inputData, normalizationData) {
+    const {inputMax, inputMin, labelMax, labelMin} = normalizationData;
+
+    /** Generate predictions for a uniform range of numbers between 0 and 1;
+     * We un-normalize the data by doing the inverse of the min-max scaling that we did earlier.
+     */
+
+    const [xs, preds] = tf.tidy(() =>{
+        
+        const xs = tf.linspace(0, 1, 100);
+        const preds = model.predict(xs.reshape([100, 1])); // [num_examples, num_features_per_example]
+
+        const unNormXs = xs.mul(inputMax.sub(inputMin)).add(inputMin);
+
+        const unNormPreds = preds.mul(labelMax.sub(labelMin)).add(labelMin);
+
+        // Un-normalize the data
+        // https://stackoverflow.com/questions/63985396/what-do-i-use-instead-of-tensor-datasync-to-get-the-predicted-value-in-tensorf
+        // https://meowni.ca/posts/on-tfjs-datasync/
+        return [unNormXs.dataSync(), unNormPreds.dataSync()]; // .dataSync() is a method we can use to get a typedarray of the values stored in a tensor
+    });
+    
+    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/from   
+    const predictedPoints = Array.from(xs).map((val, i) => {
+        return {x: val, y: preds[i]}        
+    });
+    // console.log(predictedPoints);
+
+    // const originalPoints = inputData;
+    const originalPoints = inputData.map(d => ({
+        x: d.horsepower, y: d.mpg,
+    }));
+    // console.log(originalPoints.slice(0,4));
+
+    tfvis.render.scatterplot(
+        {name: 'Model Predictions vs Original Data'},
+        {values: [originalPoints, predictedPoints], series: ['original', 'predicted']},
+        {
+            xLabel: 'Horsepower',
+            yLabel: 'MPG',
+            height: 300
+        }
+    );
+}
+
+
+
 // Console
 document.addEventListener('DOMContentLoaded', run);
 document.addEventListener('DOMContentLoaded', (event) => {console.log('DOM fully loaded and parsed')});
+
+
