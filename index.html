@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<!-- Useful links -->
+<!-- https://towardsdatascience.com/how-to-deploy-tensorflow-models-to-the-web-81da150f87f7 -->
+<!-- https://www.handsonembedded.com/hands-on-aiot-simple-linear-regression/simple-linear-regression-in-tensorflow-js-with-bootstrap/ -->
+
+<html>
+    <head>
+        <!-- https://stackoverflow.com/questions/11996257/the-character-encoding-of-the-html-document-was-not-declared -->
+        <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+        <meta content="utf-8" http-equiv="encoding">
+
+        <title>TensorFlow.js Tutorial</title>
+
+        <!-- https://stackoverflow.com/questions/2194992/jquery-is-not-defined -->
+        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+        <!-- Import TensorFlow.js -->
+        <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@2.0.0/dist/tf.min.js"></script>
+        <!-- Import tfjs-vis -->
+        <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-vis@1.0.2/dist/tfjs-vis.umd.min.js"></script>
+    </head>
+
+    <body>
+        <!-- Import the main script file -->
+        <script src="scripts.js"></script>
+
+        <form>
+            <label>Enter horsepower:</label>
+            
+            <!-- input box for User value -->
+            <input type="text" id="userInput" placeholder="value">
+            
+            <!-- button calling for prediction-->
+            <button type="button" onclick="predict(loadedModel)">Predict</button>
+
+            <!-- resulting prediction -->
+            <h3>MPG = <span id="result">...</span></h3>
+        </form>
+    </body>
+    
+</html>
