@@ -17,23 +17,215 @@
         <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@2.0.0/dist/tf.min.js"></script>
         <!-- Import tfjs-vis -->
         <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-vis@1.0.2/dist/tfjs-vis.umd.min.js"></script>
+
+        <!-- CSS -->
+        <link rel="stylesheet" type="text/css" href="mystyle.css">
+
+        <!-- Import the main script file -->
+        <script src="scripts.js"></script>
     </head>
 
     <body>
-        <!-- Import the main script file -->
-        <script src="scripts.js"></script>
+        <!-- input box for User value -->
+        <!-- https://stackoverflow.com/questions/19940103/css-to-align-label-and-inputs-on-form -->
+        <h3>Wprowadź parametry domu:</h3>
+        <ul>
+                <li> <!-- delete after tests -->
+                    <label for="userInput">userInput</label> 
+                    <input type="text" id="userInput" placeholder="value" value="100"/>
+                </li>
 
-        <form>
-            <label>Enter horsepower:</label>
-            
-            <!-- input box for User value -->
-            <input type="text" id="userInput" placeholder="value">
-            
-            <!-- button calling for prediction-->
-            <button type="button" onclick="predict(loadedModel)">Predict</button>
+                <li>
+                    <label for="userInput_lPokoi">userInput_lPokoi</label> 
+                    <input type="text" id="userInput_lPokoi" placeholder="value" value="4"/>                    
+                </li>                
 
-            <!-- resulting prediction -->
-            <h3>MPG = <span id="result">...</span></h3>
+                <li>
+                    <label for="userInput_powierzchnia_corr">userInput_powierzchnia_corr</label>
+                    <input type="text" id="userInput_powierzchnia_corr" placeholder="value" value="100"/>
+                </li>
+    
+                <li>
+                    <label for="userInput_powierzchniaDzialki_corr">userInput_powierzchniaDzialki_corr</label>
+                    <input type="text" id="userInput_powierzchniaDzialki_corr" placeholder="value" value="200"/>
+                </li>
+    
+                <li>
+                    <label for="userInput_rokBudowy_corr">userInput_rokBudowy_corr</label>
+                    <input type="text" id="userInput_rokBudowy_corr" placeholder="value" value="2010"/>
+                </li>
+    
+                <li>
+                    <label for="userInput_cena/m">userInput_cena/m</label>
+                    <input type="text" id="userInput_cena/m" placeholder="value" value="10000"/>
+                </li>
+    
+                <li>
+                    <label for="userInput_lPieter_crr">userInput_lPieter_crr</label>
+                    <input type="text" id="userInput_lPieter_crr" placeholder="value" value="1"/>
+                </li>
+    
+                <li>
+                    <label for="userInput_locationX">userInput_locationX</label>
+                    <input type="text" id="userInput_locationX" placeholder="value" value="52.2330649"/>
+                </li>
+    
+                <li>
+                    <label for="userInput_locationY">userInput_locationY</label>
+                    <input type="text" id="userInput_locationY" placeholder="value" value="20.9207669"/>
+                </li>
+    
+                <li>
+                    <label for="userInput_rodzajZabudowy_0">userInput_rodzajZabudowy_0</label>
+                    <input type="text" id="userInput_rodzajZabudowy_0" placeholder="value" value="0"/>
+                </li>
+    
+                <li>
+                    <label for="userInput_rodzajZabudowy_bliźniak">userInput_rodzajZabudowy_bliźniak</label>
+                    <input type="text" id="userInput_rodzajZabudowy_bliźniak" placeholder="value" value="1"/>
+                </li>
+    
+                <li>
+                    <label for="userInput_rodzajZabudowy_dworek/pałac">userInput_rodzajZabudowy_dworek/pałac</label>
+                    <input type="text" id="userInput_rodzajZabudowy_dworek/pałac" placeholder="value" value="0"/>
+                </li>
+    
+                <li>
+                    <label for="userInput_rodzajZabudowy_gospodarstwo">userInput_rodzajZabudowy_gospodarstwo</label>
+                    <input type="text" id="userInput_rodzajZabudowy_gospodarstwo" placeholder="value" value="0"/>
+                </li>
+    
+                <li>
+                    <label for="userInput_rodzajZabudowy_kamienica">userInput_rodzajZabudowy_kamienica</label>
+                    <input type="text" id="userInput_rodzajZabudowy_kamienica" placeholder="value" value="0"/>
+                </li>
+    
+                <li>
+                    <label for="userInput_rodzajZabudowy_szeregowiec">userInput_rodzajZabudowy_szeregowiec</label>
+                    <input type="text" id="userInput_rodzajZabudowy_szeregowiec" placeholder="value" value="0"/>
+                </li>
+    
+                <li>
+                    <label for="userInput_rodzajZabudowy_wolnostojący">userInput_rodzajZabudowy_wolnostojący</label>
+                    <input type="text" id="userInput_rodzajZabudowy_wolnostojący" placeholder="value" value="0"/>
+                </li>
+    
+                <li>
+                    <label for="userInput_materialBudynku_0">userInput_materialBudynku_0</label>
+                    <input type="text" id="userInput_materialBudynku_0" placeholder="value" value="0"/>
+                </li>
+    
+                <li>
+                    <label for="userInput_materialBudynku_beton">userInput_materialBudynku_beton</label>
+                    <input type="text" id="userInput_materialBudynku_beton" placeholder="value" value="1"/>
+                </li>
+    
+                <li>
+                    <label for="userInput_materialBudynku_beton_komórkowy">userInput_materialBudynku_beton_komórkowy</label>
+                    <input type="text" id="userInput_materialBudynku_beton_komórkowy" placeholder="value" value="0"/>
+                </li>
+    
+                <li>
+                    <label for="userInput_materialBudynku_cegła">userInput_materialBudynku_cegła</label>
+                    <input type="text" id="userInput_materialBudynku_cegła" placeholder="value" value="0"/>
+                </li>
+    
+                <li>
+                    <label for="userInput_materialBudynku_drewno">userInput_materialBudynku_drewno</label>
+                    <input type="text" id="userInput_materialBudynku_drewno" placeholder="value" value="0"/>
+                </li>
+    
+                <li>
+                    <label for="userInput_materialBudynku_inne">userInput_materialBudynku_inne</label>
+                    <input type="text" id="userInput_materialBudynku_inne" placeholder="value" value="0"/>
+                </li>
+    
+                <li>
+                    <label for="userInput_materialBudynku_keramzyt">userInput_materialBudynku_keramzyt</label>
+                    <input type="text" id="userInput_materialBudynku_keramzyt" placeholder="value" value="0"/>
+                </li>
+    
+                <li>
+                    <label for="userInput_materialBudynku_pustak">userInput_materialBudynku_pustak</label>
+                    <input type="text" id="userInput_materialBudynku_pustak" placeholder="value" value="0"/>
+                </li>
+    
+                <li>
+                    <label for="userInput_materialBudynku_silikat">userInput_materialBudynku_silikat</label>
+                    <input type="text" id="userInput_materialBudynku_silikat" placeholder="value" value="0"/>
+                </li>
+    
+                <li>
+                    <label for="userInput_stanWykonczenia_0">userInput_stanWykonczenia_0</label>
+                    <input type="text" id="userInput_stanWykonczenia_0" placeholder="value" value="0"/>
+                </li>
+    
+                <li>
+                    <label for="userInput_stanWykonczenia_do_remontu">userInput_stanWykonczenia_do_remontu</label>
+                    <input type="text" id="userInput_stanWykonczenia_do_remontu" placeholder="value" value="1"/>
+                </li>
+    
+                <li>
+                    <label for="userInput_stanWykonczenia_do_wykończenia">userInput_stanWykonczenia_do_wykończenia</label>
+                    <input type="text" id="userInput_stanWykonczenia_do_wykończenia" placeholder="value" value="0"/>
+                </li>
+    
+                <li>
+                    <label for="userInput_stanWykonczenia_do_zamieszkania">userInput_stanWykonczenia_do_zamieszkania</label>
+                    <input type="text" id="userInput_stanWykonczenia_do_zamieszkania" placeholder="value" value="0"/>
+                </li>
+    
+                <li>
+                    <label for="userInput_stanWykonczenia_stan_surowy_otwarty">userInput_stanWykonczenia_stan_surowy_otwarty</label>
+                    <input type="text" id="userInput_stanWykonczenia_stan_surowy_otwarty" placeholder="value" value="0"/>
+                </li>
+    
+                <li>
+                    <label for="userInput_stanWykonczenia_stan_surowy_zamknięty">userInput_stanWykonczenia_stan_surowy_zamknięty</label>
+                    <input type="text" id="userInput_stanWykonczenia_stan_surowy_zamknięty" placeholder="value" value="0"/>
+                </li>
+    
+                <li>
+                    <label for="userInput_okna_0">userInput_okna_0</label>
+                    <input type="text" id="userInput_okna_0" placeholder="value" value="0"/>
+                </li>
+    
+                <li>
+                    <label for="userInput_okna_aluminiowe">userInput_okna_aluminiowe</label>
+                    <input type="text" id="userInput_okna_aluminiowe" placeholder="value" value="0"/>
+                </li>
+    
+                <li>
+                    <label for="userInput_okna_brak">userInput_okna_brak</label>
+                    <input type="text" id="userInput_okna_brak" placeholder="value" value="0"/>
+                </li>
+    
+                <li>
+                    <label for="userInput_okna_drewniane">userInput_okna_drewniane</label>
+                    <input type="text" id="userInput_okna_drewniane" placeholder="value" value="0"/>
+                </li>
+    
+                <li>
+                    <label for="userInput_okna_plastikowe">userInput_okna_plastikowe</label>
+                    <input type="text" id="userInput_okna_plastikowe" placeholder="value" value="1"/>
+                </li>
+    
+                <li>
+                    <label for="userInput_rynek_pierwotny">userInput_rynek_pierwotny</label>
+                    <input type="text" id="userInput_rynek_pierwotny" placeholder="value" value="0"/>
+                </li>
+    
+                <li>
+                    <label for="userInput_rynek_wtórny">userInput_rynek_wtórny</label>
+                    <input type="text" id="userInput_rynek_wtórny" placeholder="value" value="1"/>
+                </li>
+        </ul>        
+            
+        <!-- button calling for prediction-->
+        <button type="button" onclick="predict(loadedModel)">Predict</button>
+
+        <!-- resulting prediction -->
+        <h3>Cena (zł): <span id="result">...</span></h3>
         </form>
     </body>
     

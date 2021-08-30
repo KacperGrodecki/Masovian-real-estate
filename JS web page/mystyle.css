@@ -1,0 +1,11 @@
+ul {
+    display: table;
+}
+
+li {
+    display: table-row;
+}
+
+label, input {
+    display: table-cell;
+}
