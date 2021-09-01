@@ -1,51 +1,32 @@
 // https://www.handsonembedded.com/hands-on-aiot-simple-linear-regression/simple-linear-regression-in-tensorflow-js-with-bootstrap/
 
 
-// Load file with normalization parameters
-// https://stackoverflow.com/questions/49432579/await-is-only-valid-in-async-function
-async function fetchNormalizationParameters() {
-    // Load normalization parameters
-    const result = await fetch('https://raw.githubusercontent.com/matthiaskozubal/tests/0b15e0516d72f8a4e58adc8cd215de45b45448ef/normalization_parameters.json');
-    const NormalizationParameters = await result.json();
-    // console.log('Normalization parameters inputMax:', NormalizationParameters.inputMax);
-    return NormalizationParameters
-}
-
-
-// Newer function - returns means and variances
-async function fetchNormalizationParameters_new() {
-    var means = await fetch('https://raw.githubusercontent.com/KacperGrodecki/nieruchomosci-mazowieckie/0.0.4/JS%20web%20page/means.json');
-    means = await means.json();
-    means = tf.tensor(means[0]);//,shape=[means[0].length]);
-    // console.log('Normalization parameters, means:', means.shape);
-
-    var variances = await fetch('https://raw.githubusercontent.com/KacperGrodecki/nieruchomosci-mazowieckie/0.0.4/JS%20web%20page/variance.json'); // name will change after commit
-    variances = await variances.json();
-    variances = tf.tensor(variances[0]);
-    // console.log('Normalization parameters, variances:', variances.shape);
-
-    return {means, variances}
-}
-
-
 // Model loading
 async function loadModel() {
-        // https://support.mozilla.org/en-US/questions/1264280
-        // change privacy_file_unique_origin to false in about:config
-        // https://towardsdatascience.com/how-to-deploy-tensorflow-models-to-the-web-81da150f87f7
-        const loadedModel = await tf.loadLayersModel('https://raw.githubusercontent.com/matthiaskozubal/tests/main/cars_my_model.json'); 
-        // const loadedModel = await tf.loadLayersModel('https://raw.githubusercontent.com/KacperGrodecki/nieruchomosci-mazowieckie/main/model.json');
-        console.log('Model: ', loadedModel);
-        return loadedModel;
+    // https://support.mozilla.org/en-US/questions/1264280
+    // change privacy_file_unique_origin to false in about:config
+    // https://towardsdatascience.com/how-to-deploy-tensorflow-models-to-the-web-81da150f87f7
+    // const loadedModel = await tf.loadLayersModel('https://raw.githubusercontent.com/KacperGrodecki/nieruchomosci-mazowieckie/0.0.4/jsmodel_norm/model.json');
+    const loadedModel = await tf.loadLayersModel('https://raw.githubusercontent.com/KacperGrodecki/nieruchomosci-mazowieckie/0.0.4/jsmodel/model.json');
+    console.log('Model: ', loadedModel);
+    return loadedModel;
     };
     
 
+// load model immediately to avoid delay when user clicks 'Predict'
+const loadedModel = loadModel();  
+console.log('Model loaded');
+
+
+
+
 // Taking user input parameters and returnig them as tensor
 function getUserInput() {
+    // Define model parameters
     const modelParameters = ['lPokoi', 'powierzchnia_corr', 'powierzchniaDzialki_corr', 'rokBudowy_corr', 'lPieter_crr', 'locationX', 'locationY', 'rodzajZabudowy_0', 'rodzajZabudowy_bliźniak', 'rodzajZabudowy_dworek/pałac', 'rodzajZabudowy_gospodarstwo', 'rodzajZabudowy_kamienica', 'rodzajZabudowy_szeregowiec', 'rodzajZabudowy_wolnostojący', 'materialBudynku_0', 'materialBudynku_beton', 'materialBudynku_beton_komórkowy', 'materialBudynku_cegła', 'materialBudynku_drewno', 'materialBudynku_inne', 'materialBudynku_keramzyt', 'materialBudynku_pustak', 'materialBudynku_silikat', 'stanWykonczenia_0', 'stanWykonczenia_do_remontu', 'stanWykonczenia_do_wykończenia', 'stanWykonczenia_do_zamieszkania', 'stanWykonczenia_stan_surowy_otwarty', 'stanWykonczenia_stan_surowy_zamknięty', 'okna_0', 'okna_aluminiowe', 'okna_brak', 'okna_drewniane', 'okna_plastikowe', 'rynek_pierwotny', 'rynek_wtórny'];
  
+    // Fetch user-provided values for model parameters
     inputsTensor = tf.tensor([]);
- 
     // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach
     modelParameters.forEach(
         (element, idx) => {
@@ -53,9 +34,9 @@ function getUserInput() {
             inputsTensor = tf.concat([inputsTensor, tf.tensor([parseInt(element_value)])], 0) // parseInt(element_value)
             // console.log(idx, ': ', 'userInput_'+element, ' = ', element_value)
         }
-            
     )
     // console.log(modelParameters.length, inputsTensor.shape);
+    // inputsTensor.print();
 
     // Normalize user input parameters
     inputsTensor = normalizeUserInput(inputsTensor);
@@ -64,42 +45,43 @@ function getUserInput() {
 };
 
 
-// Normalize user input parameters
 async function normalizeUserInput(inputsTensor) {
-    const {means, variances} = await fetchNormalizationParameters_new();
-    // console.log('means: ', means.shape);
-    // console.log('variances:', variances.shape);
-    // console.log('inputsTensor:', inputsTensor.shape);
-    var inputsTensorNormalized = inputsTensor.sub(means).div(variances);
-    inputsTensorNormalized.print();
+    // https://stackoverflow.com/questions/49802499/how-do-i-mutate-value-of-a-tensor-in-tensorflow-js
+    const inputsTensor_buffer = tf.buffer(inputsTensor.shape, inputsTensor.dtype, inputsTensor.dataSync());
+    inputsTensor_buffer.set(inputsTensor.dataSync()[0]/10, 0);                                                      // 0 - "lPokoi"/10
+    inputsTensor_buffer.set(inputsTensor.dataSync()[1]/10, 1);                                                      // 1 - "powierzchnia_corr"/10
+    inputsTensor_buffer.set(tf.log(inputsTensor.add(tf.tensor(1))).dataSync()[2]/tf.log(10).dataSync()/14, 2);      // 2 - log("powierzchniaDzialki_corr"+1)/14
+    inputsTensor_buffer.set(tf.pow(inputsTensor.sub(tf.fill(inputsTensor.shape, 1899)), 4).dataSync()[3]/3e8, 3);   // 3 - power("rokBudowy_corr"-1899, 4)/3e8
+
+    const inputsTensorNormalized = inputsTensor_buffer.toTensor();
+    console.log('inputsTensorNormalized:')
+    tf.slice(inputsTensorNormalized, 0, 4).print();
+    // inputsTensorNormalized.print();
+
     return inputsTensorNormalized
 }
 
 
 
-    
+
+
+
+
+
+
 // Predict with model loaded from file
 async function predict(loadedModel) {
-    // take User input and normalize it
-    const inputsTensor = getUserInput();
-    const userInput = document.getElementById('userInput').value;
-    const inputTensor = tf.tensor([parseInt(userInput)]).reshape([1, 1]);  
-
-    // normalize user input
-    const normalizationParameters = await fetchNormalizationParameters();
-    const inputMax = tf.tensor(normalizationParameters.inputMax);
-    const inputMin = tf.tensor(normalizationParameters.inputMin);
-    const labelMax = tf.tensor(normalizationParameters.labelMax);
-    const labelMin = tf.tensor(normalizationParameters.labelMin);
-    // console.log('Normalization parameters inputMax:', inputMax);
+    // Take User input (already normalized)
+    var inputsTensor = await getUserInput();
     
-    const normalizedInput = inputTensor.sub(inputMin).div(inputMax.sub(inputMin));             
-    console.log('Normalized User\'s input value and shape:', normalizedInput.dataSync()[0], normalizedInput.shape);
+    // Reshape User input (I wasn't able to do it in getUserInput(), because it was a Promise there)
+    inputsTensor = inputsTensor.reshape([1, inputsTensor.shape[0]]);
+    console.log('inputsTensor.shape: ', inputsTensor.shape);
 
     // load model and predict the result
     // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/then
     const normalizedPrediction = loadedModel.then(loadedModel => {
-        let normalizedPrediction = loadedModel.predict(normalizedInput);
+        let normalizedPrediction = loadedModel.predict(inputsTensor); // .cast('float32')
         // console.log(normalizedPrediction.dataSync()[0]);
         return normalizedPrediction
     })
@@ -115,7 +97,3 @@ async function predict(loadedModel) {
     displayResult();
 
 }
-
-// load model immediately to avoid delay when user clicks 'Predict'
-const loadedModel = loadModel();  
-console.log('Model loaded');
