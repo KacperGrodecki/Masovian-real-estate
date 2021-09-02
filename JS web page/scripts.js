@@ -51,11 +51,14 @@ async function normalizeUserInput(inputsTensor) {
     inputsTensor_buffer.set(inputsTensor.dataSync()[0]/10, 0);                                                      // 0 - "lPokoi"/10
     inputsTensor_buffer.set(inputsTensor.dataSync()[1]/10, 1);                                                      // 1 - "powierzchnia_corr"/10
     inputsTensor_buffer.set(tf.log(inputsTensor.add(tf.tensor(1))).dataSync()[2]/tf.log(10).dataSync()/14, 2);      // 2 - log("powierzchniaDzialki_corr"+1)/14
-    inputsTensor_buffer.set(tf.pow(inputsTensor.sub(tf.fill(inputsTensor.shape, 1899)), 4).dataSync()[3]/3e8, 3);   // 3 - power("rokBudowy_corr"-1899, 4)/3e8
+    inputsTensor_buffer.set(tf.pow(inputsTensor.sub(tf.fill(inputsTensor.shape, 1899)), 4).dataSync()[3]/3e8, 3);   // 3 - ("rokBudowy_corr"-1899)^4/3e8
+    inputsTensor_buffer.set(inputsTensor.dataSync()[4]/10, 4);                                                      // 4 - "lPieter_crr"/10
+    inputsTensor_buffer.set((inputsTensor.dataSync()[5]-21)/4, 5);                                                  // 5 - ("locationX"-21)/4"
+    inputsTensor_buffer.set((inputsTensor.dataSync()[6]-52)/2, 6);                                                  // 6 - ("locationY"-52)/2"
 
     const inputsTensorNormalized = inputsTensor_buffer.toTensor();
-    console.log('inputsTensorNormalized:')
-    tf.slice(inputsTensorNormalized, 0, 4).print();
+    // console.log('inputsTensorNormalized:', inputsTensorNormalized.dataSync()[6])
+    tf.slice(inputsTensorNormalized, 0, 7).print();
     // inputsTensorNormalized.print();
 
     return inputsTensorNormalized
@@ -77,6 +80,7 @@ async function predict(loadedModel) {
     // Reshape User input (I wasn't able to do it in getUserInput(), because it was a Promise there)
     inputsTensor = inputsTensor.reshape([1, inputsTensor.shape[0]]);
     console.log('inputsTensor.shape: ', inputsTensor.shape);
+    console.log('inputsTensor: ', inputsTensor.dataSync());
 
     // load model and predict the result
     // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/then
@@ -90,7 +94,7 @@ async function predict(loadedModel) {
     // https://dev.to/ramonak/javascript-how-to-access-the-return-value-of-a-promise-object-1bck
     const displayResult = async () => {
         const prediction = await normalizedPrediction;
-        unNormalizedPrediction = prediction.mul(labelMax.sub(labelMin)).add(labelMin)
+        unNormalizedPrediction = prediction.mul(20000); // unNormalize: "cena/m"*20000
         document.getElementById('result').innerHTML = tf.round(unNormalizedPrediction).dataSync()[0];
         console.log('Prediction (un-normalized):', tf.round(unNormalizedPrediction).dataSync()[0]);
     }
