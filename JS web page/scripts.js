@@ -49,8 +49,8 @@ async function normalizeUserInput(inputsTensor) {
     // https://stackoverflow.com/questions/49802499/how-do-i-mutate-value-of-a-tensor-in-tensorflow-js
     const inputsTensor_buffer = tf.buffer(inputsTensor.shape, inputsTensor.dtype, inputsTensor.dataSync());
     inputsTensor_buffer.set(inputsTensor.dataSync()[0]/10, 0);                                                      // 0 - "lPokoi"/10
-    inputsTensor_buffer.set(inputsTensor.dataSync()[1]/10, 1);                                                      // 1 - "powierzchnia_corr"/10
-    inputsTensor_buffer.set(tf.log(inputsTensor.add(tf.tensor(1))).dataSync()[2]/tf.log(10).dataSync()/14, 2);      // 2 - log("powierzchniaDzialki_corr"+1)/14
+    inputsTensor_buffer.set(tf.log(inputsTensor.dataSync()[1]).dataSync()/10, 1);     // 1 - "powierzchnia_corr"/10
+    inputsTensor_buffer.set(tf.log(inputsTensor.add(tf.tensor(1))).dataSync()[2]/14, 2);      // 2 - log("powierzchniaDzialki_corr"+1)/14
     inputsTensor_buffer.set(tf.pow(inputsTensor.sub(tf.fill(inputsTensor.shape, 1899)), 4).dataSync()[3]/3e8, 3);   // 3 - ("rokBudowy_corr"-1899)^4/3e8
     inputsTensor_buffer.set(inputsTensor.dataSync()[4]/10, 4);                                                      // 4 - "lPieter_crr"/10
     inputsTensor_buffer.set((inputsTensor.dataSync()[5]-21)/4, 5);                                                  // 5 - ("locationX"-21)/4"
