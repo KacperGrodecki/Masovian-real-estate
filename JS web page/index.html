@@ -9,7 +9,7 @@
         <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
         <meta content="utf-8" http-equiv="encoding">
 
-        <title>TensorFlow.js Tutorial</title>
+        <title>Przewidywanie cen mieszkań w mazowieckim</title>
 
         <!-- https://stackoverflow.com/questions/2194992/jquery-is-not-defined -->
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
@@ -29,20 +29,20 @@
         <!-- input box for User value -->
         <!-- https://stackoverflow.com/questions/19940103/css-to-align-label-and-inputs-on-form -->
         <h3>Wprowadź parametry domu:</h3> 
-        {% comment %} default values from mazowieckie_colab_DNN.ipynb {% endcomment %}
+        <!-- default values from mazowieckie_colab_DNN.ipynb  -->
         <ul>
                 <li>
                     <label for="userInput_lPokoi">Liczba pokoi</label> 
-                    <input type="text" id="userInput_lPokoi" placeholder="value" value="6"/>                    
+                    <input type="text" id="userInput_lPokoi" placeholder="value" value="6"/>                        
                 </li>                
 
                 <li>
-                    <label for="userInput_powierzchnia_corr">Powierzchnia (m^2)</label>
-                    <input type="text" id="userInput_powierzchnia_corr" placeholder="value" value="100"/>
+                    <label for="userInput_powierzchnia_corr">Powierzchnia (m<sup>2</sup>)</label>
+                    <input type="text" id="userInput_powierzchnia_corr" placeholder="value" value="140"/>
                 </li>
     
                 <li>
-                    <label for="userInput_powierzchniaDzialki_corr">Powierzchnia działki (m^2)</label>
+                    <label for="userInput_powierzchniaDzialki_corr">Powierzchnia działki (m<sup>2</sup>)</label>
                     <input type="text" id="userInput_powierzchniaDzialki_corr" placeholder="value" value="100"/>
                 </li>
     
@@ -57,167 +57,84 @@
                 </li>
     
                 <li>
-                    <label for="userInput_locationY">Długość geograficzna (~X) (deg)</label>
+                    <label for="userInput_locationY">Długość geograficzna (<span>&#176;</span>)</label>
                     <input type="text" id="userInput_locationX" placeholder="value" value="21"/> 
                 </li>
     
                 <li>
-                    <label for="userInput_locationX">Szerokość geograficzna (~Y) (deg)</label>
+                    <label for="userInput_locationX">Szerokość geograficzna (<span>&#176;</span>)</label>
                     <input type="text" id="userInput_locationY" placeholder="value" value="52"/>
                 </li>
-    
+
                 <li>
-                    <label for="userInput_rodzajZabudowy_0">Rodzaj zabudowy 0</label>
-                    <input type="text" id="userInput_rodzajZabudowy_0" placeholder="value" value="0"/>
+                    <label for="userInputSelect_rodzajZabudowy">Rodzaj zabudowy:</label>
+                    <select id="userInputSelect_rodzajZabudowy" autocomplete="off">
+                        <option value="0">0</option>
+                        <option value="1" selected="selected">bliźniak</option>
+                        <option value="2">dworek/pałac</option>
+                        <option value="3">gospodarstwo</option>                                        
+                        <option value="4">kamienica</option>
+                        <option value="5">szeregowiec</option>
+                        <option value="6">wolnostojący</option>                                        
+                    </select>    
+                </li>
+
+                <li>
+                    <label for="userInputSelect_materialBudynku">Materiał budynku:</label>
+                    <select id="userInputSelect_materialBudynku" autocomplete="off">
+                        <option value="0">0</option>
+                        <option value="1" selected="selected">beton</option>
+                        <option value="2">beton komórkowy</option>
+                        <option value="3">cegła</option>                                        
+                        <option value="4">drewno</option>
+                        <option value="5">inne</option>
+                        <option value="6">keramzyt</option>                                        
+                        <option value="7">pustak</option>
+                        <option value="8">silikat</option>                    
+                    </select>    
+                </li>
+    
+
+                <li>
+                    <label for="userInputSelect_stanWykonczenia">Stan wykończenia:</label>
+                    <select id="userInputSelect_stanWykonczenia" autocomplete="off">
+                        <option value="0">0</option>
+                        <option value="1" selected="selected">do remontu</option>
+                        <option value="2">do wykończenia</option>
+                        <option value="3">do zamieszkania</option>                                        
+                        <option value="4">stan surowy otwarty</option>
+                        <option value="5">stan surowy zamknięty</option>
+                    </select>    
                 </li>
     
                 <li>
-                    <label for="userInput_rodzajZabudowy_bliźniak">Rodzaj zabudowy bliźniak</label>
-                    <input type="text" id="userInput_rodzajZabudowy_bliźniak" placeholder="value" value="1"/>
+                    <label for="userInputSelect_okna">Okna:</label>
+                    <select id="userInputSelect_okna" autocomplete="off">
+                        <option value="0">0</option>
+                        <option value="1">aluminiowe</option>
+                        <option value="2">brak</option>
+                        <option value="3">drewniane</option>                                        
+                        <option value="4" selected="selected">plastikowe</option>
+                    </select>    
                 </li>
     
                 <li>
-                    <label for="userInput_rodzajZabudowy_dworek/pałac">Rodzaj zabudowy dworek/pałac</label>
-                    <input type="text" id="userInput_rodzajZabudowy_dworek/pałac" placeholder="value" value="0"/>
+                    <label for="userInputSelect_rynek">Rynek:</label>
+                    <select id="userInputSelect_rynek" autocomplete="off">
+                        <option value="0">pierwotny</option>
+                        <option value="1" selected="selected">wtórny</option>
+                    </select>    
                 </li>
     
-                <li>
-                    <label for="userInput_rodzajZabudowy_gospodarstwo">Rodzaj zabudowy gospodarstwo</label>
-                    <input type="text" id="userInput_rodzajZabudowy_gospodarstwo" placeholder="value" value="0"/>
-                </li>
-    
-                <li>
-                    <label for="userInput_rodzajZabudowy_kamienica">Rodzaj zabudowy kamienica</label>
-                    <input type="text" id="userInput_rodzajZabudowy_kamienica" placeholder="value" value="0"/>
-                </li>
-    
-                <li>
-                    <label for="userInput_rodzajZabudowy_szeregowiec">Rodzaj zabudowy szeregowiec</label>
-                    <input type="text" id="userInput_rodzajZabudowy_szeregowiec" placeholder="value" value="0"/>
-                </li>
-    
-                <li>
-                    <label for="userInput_rodzajZabudowy_wolnostojący">Rodzaj zabudowy wolnostojący</label>
-                    <input type="text" id="userInput_rodzajZabudowy_wolnostojący" placeholder="value" value="0"/>
-                </li>
-    
-                <li>
-                    <label for="userInput_materialBudynku_0">Materiał budynku 0</label>
-                    <input type="text" id="userInput_materialBudynku_0" placeholder="value" value="0"/>
-                </li>
-    
-                <li>
-                    <label for="userInput_materialBudynku_beton">Materiał budynku beton</label>
-                    <input type="text" id="userInput_materialBudynku_beton" placeholder="value" value="1"/>
-                </li>
-    
-                <li>
-                    <label for="userInput_materialBudynku_beton_komórkowy">Materiał budynku beton_komórkowy</label>
-                    <input type="text" id="userInput_materialBudynku_beton_komórkowy" placeholder="value" value="0"/>
-                </li>
-    
-                <li>
-                    <label for="userInput_materialBudynku_cegła">Materiał budynku cegła</label>
-                    <input type="text" id="userInput_materialBudynku_cegła" placeholder="value" value="0"/>
-                </li>
-    
-                <li>
-                    <label for="userInput_materialBudynku_drewno">Materiał budynku drewno</label>
-                    <input type="text" id="userInput_materialBudynku_drewno" placeholder="value" value="0"/>
-                </li>
-    
-                <li>
-                    <label for="userInput_materialBudynku_inne">Materiał budynku inne</label>
-                    <input type="text" id="userInput_materialBudynku_inne" placeholder="value" value="0"/>
-                </li>
-    
-                <li>
-                    <label for="userInput_materialBudynku_keramzyt">Materiał budynku keramzyt</label>
-                    <input type="text" id="userInput_materialBudynku_keramzyt" placeholder="value" value="0"/>
-                </li>
-    
-                <li>
-                    <label for="userInput_materialBudynku_pustak">Materiał budynku pustak</label>
-                    <input type="text" id="userInput_materialBudynku_pustak" placeholder="value" value="0"/>
-                </li>
-    
-                <li>
-                    <label for="userInput_materialBudynku_silikat">Materiał budynku silikat</label>
-                    <input type="text" id="userInput_materialBudynku_silikat" placeholder="value" value="0"/>
-                </li>
-    
-                <li>
-                    <label for="userInput_stanWykonczenia_0">Stan wykończenia 0</label>
-                    <input type="text" id="userInput_stanWykonczenia_0" placeholder="value" value="0"/>
-                </li>
-    
-                <li>
-                    <label for="userInput_stanWykonczenia_do_remontu">Stan wykończenia do remontu</label>
-                    <input type="text" id="userInput_stanWykonczenia_do_remontu" placeholder="value" value="1"/>
-                </li>
-    
-                <li>
-                    <label for="userInput_stanWykonczenia_do_wykończenia">Stan wykończenia do wykończenia</label>
-                    <input type="text" id="userInput_stanWykonczenia_do_wykończenia" placeholder="value" value="0"/>
-                </li>
-    
-                <li>
-                    <label for="userInput_stanWykonczenia_do_zamieszkania">Stan wykończenia do zamieszkania</label>
-                    <input type="text" id="userInput_stanWykonczenia_do_zamieszkania" placeholder="value" value="0"/>
-                </li>
-    
-                <li>
-                    <label for="userInput_stanWykonczenia_stan_surowy_otwarty">Stan wykończenia stan surowy otwarty</label>
-                    <input type="text" id="userInput_stanWykonczenia_stan_surowy_otwarty" placeholder="value" value="0"/>
-                </li>
-    
-                <li>
-                    <label for="userInput_stanWykonczenia_stan_surowy_zamknięty">Stan wykończenia stan surowy zamknięty</label>
-                    <input type="text" id="userInput_stanWykonczenia_stan_surowy_zamknięty" placeholder="value" value="0"/>
-                </li>
-    
-                <li>
-                    <label for="userInput_okna_0">Okna 0</label>
-                    <input type="text" id="userInput_okna_0" placeholder="value" value="0"/>
-                </li>
-    
-                <li>
-                    <label for="userInput_okna_aluminiowe">Okna aluminiowe</label>
-                    <input type="text" id="userInput_okna_aluminiowe" placeholder="value" value="0"/>
-                </li>
-    
-                <li>
-                    <label for="userInput_okna_brak">Okna brak</label>
-                    <input type="text" id="userInput_okna_brak" placeholder="value" value="0"/>
-                </li>
-    
-                <li>
-                    <label for="userInput_okna_drewniane">Okna drewniane</label>
-                    <input type="text" id="userInput_okna_drewniane" placeholder="value" value="0"/>
-                </li>
-    
-                <li>
-                    <label for="userInput_okna_plastikowe">Okna plastikowe</label>
-                    <input type="text" id="userInput_okna_plastikowe" placeholder="value" value="1"/>
-                </li>
-    
-                <li>
-                    <label for="userInput_rynek_pierwotny">Rynek pierwotny</label>
-                    <input type="text" id="userInput_rynek_pierwotny" placeholder="value" value="0"/>
-                </li>
-    
-                <li>
-                    <label for="userInput_rynek_wtórny">Rynek wtórny</label>
-                    <input type="text" id="userInput_rynek_wtórny" placeholder="value" value="1"/>
-                </li>
         </ul>        
             
         <!-- button calling for prediction-->
         <button type="button" onclick="predict(loadedModel)">Predict</button>
 
         <!-- resulting prediction -->
-        <h3>Cena (zł): <span id="result">...</span></h3>
-        <h3>With default values model should predict: 746417.9 zł</h3>
+        <h3>Cena za metr kwadratowy: <span id="predicted_price_per_m2">...</span> zł/m<sup>2</sup></h3><small>(default: 5405 zł/m<sup>2</sup>)</small>
+        <div></div>
+        <h3>Cena: <span id="predicted_price">...</span> zł</h3><small>(default: 756648 zł)</small>
         </form>
     </body>
     

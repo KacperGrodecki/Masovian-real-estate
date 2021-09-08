@@ -9,3 +9,11 @@ li {
 label, input {
     display: table-cell;
 }
+
+select {
+    width: 211px;
+  }
+  
+  option {
+    width: 211px;
+  }
