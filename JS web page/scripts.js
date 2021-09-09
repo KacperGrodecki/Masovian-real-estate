@@ -22,25 +22,59 @@ console.log('Model loaded');
 
 // Taking user input parameters and returnig them as tensor
 function getUserInput() {
-    // Define model parameters
-    const modelParameters = ['lPokoi', 'powierzchnia_corr', 'powierzchniaDzialki_corr', 'rokBudowy_corr', 'lPieter_crr', 'locationX', 'locationY', 'rodzajZabudowy_0', 'rodzajZabudowy_bliźniak', 'rodzajZabudowy_dworek/pałac', 'rodzajZabudowy_gospodarstwo', 'rodzajZabudowy_kamienica', 'rodzajZabudowy_szeregowiec', 'rodzajZabudowy_wolnostojący', 'materialBudynku_0', 'materialBudynku_beton', 'materialBudynku_beton_komórkowy', 'materialBudynku_cegła', 'materialBudynku_drewno', 'materialBudynku_inne', 'materialBudynku_keramzyt', 'materialBudynku_pustak', 'materialBudynku_silikat', 'stanWykonczenia_0', 'stanWykonczenia_do_remontu', 'stanWykonczenia_do_wykończenia', 'stanWykonczenia_do_zamieszkania', 'stanWykonczenia_stan_surowy_otwarty', 'stanWykonczenia_stan_surowy_zamknięty', 'okna_0', 'okna_aluminiowe', 'okna_brak', 'okna_drewniane', 'okna_plastikowe', 'rynek_pierwotny', 'rynek_wtórny'];
- 
+
+    // Paremeters with value entered into a box
+    const valueParametersDict = ['lPokoi', 'powierzchnia_corr', 'powierzchniaDzialki_corr', 'rokBudowy_corr', 'lPieter_crr', 'locationX', 'locationY'];
     // Fetch user-provided values for model parameters
-    inputsTensor = tf.tensor([]);
+    inputsTensorValueParameters = tf.tensor([]);
     // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/forEach
-    modelParameters.forEach(
+    valueParametersDict.forEach(
         (element, idx) => {
             let element_value = document.getElementById('userInput_'+element).value
-            inputsTensor = tf.concat([inputsTensor, tf.tensor([parseInt(element_value)])], 0) // parseInt(element_value)
+            inputsTensorValueParameters = tf.concat([inputsTensorValueParameters, tf.tensor([parseInt(element_value)])], 0) // parseInt(element_value)
             // console.log(idx, ': ', 'userInput_'+element, ' = ', element_value)
         }
     )
-    // console.log(modelParameters.length, inputsTensor.shape);
-    // inputsTensor.print();
+    // console.log('inputsTensorValueParameters:', inputsTensorValueParameters.shape);
+    // inputsTensorValueParameters.print();
+
+    // Parameters selectable from drop-down list
+    const listParametersDict = {
+        'rodzajZabudowy':  ['rodzajZabudowy_0', 'rodzajZabudowy_bliźniak', 'rodzajZabudowy_dworek/pałac', 'rodzajZabudowy_gospodarstwo', 'rodzajZabudowy_kamienica', 'rodzajZabudowy_szeregowiec', 'rodzajZabudowy_wolnostojący'],
+        'materialBudynku': ['materialBudynku_0', 'materialBudynku_beton', 'materialBudynku_beton komórkowy', 'materialBudynku_cegła', 'materialBudynku_drewno', 'materialBudynku_inne', 'materialBudynku_keramzyt', 'materialBudynku_pustak', 'materialBudynku_silikat'],
+        'stanWykonczenia': ['stanWykonczenia_0', 'stanWykonczenia_do remontu', 'stanWykonczenia_do wykończenia', 'stanWykonczenia_do zamieszkania', 'stanWykonczenia_stan surowy otwarty', 'stanWykonczenia_stan surowy zamknięty'],
+        'okna':            ['okna_0', 'okna_aluminiowe', 'okna_brak', 'okna_drewniane', 'okna_plastikowe'],
+        'rynek':           ['rynek_pierwotny', 'rynek_wtórny']
+    };
+    inputsTensorListParameters = tf.tensor([]);
+    // console.log(inputsTensorListParameters.shape);
+    for (const [key, value] of Object.entries(listParametersDict)) {
+        // get value (position for which tensor will have 1 instead of 0)
+        let listParameter_value = document.getElementById('userInputSelect_'+key).value;
+        
+        // create temporary tensor with zeros and 1 in a position corresponding to the user input
+        const temporary_buffer = tf.buffer([listParametersDict[key].length], 0);
+        temporary_buffer.set(1, parseInt(listParameter_value)); // set value 1 at [location_corresponding_to_the_user_input]
+        const temporary_tensor = temporary_buffer.toTensor();       
+        inputsTensorListParameters = tf.concat([inputsTensorListParameters, temporary_tensor], 0);
+        // inputsTensorListParameters.print();
+        // console.log(inputsTensorListParameters.shape)
+ 
+        // log
+        // console.log(key, '->', value[parseInt(listParameter_value)], ', position (from 0) -', parseInt(listParameter_value));//, temporary_tensor.shape);
+        // temporary_tensor.print();
+    }
+    // console.log('inputsTensorListParameters:', inputsTensorListParameters.dataSync());
+    // inputsTensorListParameters.print();
+
+    // Concat list-parameters and value-parameters
+    inputsTensor = tf.tensor([]);
+    inputsTensor = tf.concat([inputsTensorValueParameters, inputsTensorListParameters], 0)
+    console.log('inputsTensor:', inputsTensor.shape, inputsTensor.dataSync());
+    inputsTensor.print();    
 
     // Normalize user input parameters
     inputsTensor = normalizeUserInput(inputsTensor);
-
     return inputsTensor    
 };
 
@@ -48,13 +82,13 @@ function getUserInput() {
 async function normalizeUserInput(inputsTensor) {
     // https://stackoverflow.com/questions/49802499/how-do-i-mutate-value-of-a-tensor-in-tensorflow-js
     const inputsTensor_buffer = tf.buffer(inputsTensor.shape, inputsTensor.dtype, inputsTensor.dataSync());
-    inputsTensor_buffer.set(inputsTensor.dataSync()[0]/10, 0);                                                      // 0 - "lPokoi"/10
-    inputsTensor_buffer.set(tf.log(inputsTensor.dataSync()[1]).dataSync()/10, 1);     // 1 - "powierzchnia_corr"/10
-    inputsTensor_buffer.set(tf.log(inputsTensor.add(tf.tensor(1))).dataSync()[2]/14, 2);      // 2 - log("powierzchniaDzialki_corr"+1)/14
-    inputsTensor_buffer.set(tf.pow(inputsTensor.sub(tf.fill(inputsTensor.shape, 1899)), 4).dataSync()[3]/3e8, 3);   // 3 - ("rokBudowy_corr"-1899)^4/3e8
-    inputsTensor_buffer.set(inputsTensor.dataSync()[4]/10, 4);                                                      // 4 - "lPieter_crr"/10
-    inputsTensor_buffer.set((inputsTensor.dataSync()[5]-21)/4, 5);                                                  // 5 - ("locationX"-21)/4"
-    inputsTensor_buffer.set((inputsTensor.dataSync()[6]-52)/2, 6);                                                  // 6 - ("locationY"-52)/2"
+    inputsTensor_buffer.set(inputsTensor.dataSync()[0]/10, 0);                                                                      // 0 - "lPokoi"/10
+    inputsTensor_buffer.set(tf.log(inputsTensor).div(tf.log(10)).div(tf.tensor(10)).dataSync()[1], 1);                              // 1 - log10("powierzchnia_corr")/10
+    inputsTensor_buffer.set(tf.log(inputsTensor.add(tf.tensor(1))).div(tf.log(tf.tensor(10))).div(tf.tensor(14)).dataSync()[2], 2); // 2 - log10("powierzchniaDzialki_corr"+1)/14
+    inputsTensor_buffer.set(tf.pow(inputsTensor.sub(tf.fill(inputsTensor.shape, 1899)), 4).div(tf.tensor(3e8)).dataSync()[3], 3);   // 3 - ("rokBudowy_corr"-1899)^4/3e8
+    inputsTensor_buffer.set(inputsTensor.div(tf.tensor(10)).dataSync()[4], 4);                                                      // 4 - "lPieter_crr"/10
+    inputsTensor_buffer.set(inputsTensor.sub(tf.tensor(21)).div(tf.tensor(4)).dataSync()[5], 5);                                    // 5 - ("locationX"-21)/4"
+    inputsTensor_buffer.set(inputsTensor.sub(tf.tensor(52)).div(tf.tensor(1)).dataSync()[6], 6);                                    // 6 - ("locationY"-52)/2"
 
     const inputsTensorNormalized = inputsTensor_buffer.toTensor();
     // console.log('inputsTensorNormalized:', inputsTensorNormalized.dataSync()[6])
@@ -63,10 +97,6 @@ async function normalizeUserInput(inputsTensor) {
 
     return inputsTensorNormalized
 }
-
-
-
-
 
 
 
@@ -84,20 +114,18 @@ async function predict(loadedModel) {
 
     // load model and predict the result
     // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/then
-    const normalizedPrediction = loadedModel.then(loadedModel => {
-        let normalizedPrediction = loadedModel.predict(inputsTensor); // .cast('float32')
-        // console.log(normalizedPrediction.dataSync()[0]);
-        return normalizedPrediction
-    })
+    const normalizedPrediction = (await loadedModel).predict(inputsTensor);
 
     // overwrite element 'result' with predicted value
     // https://dev.to/ramonak/javascript-how-to-access-the-return-value-of-a-promise-object-1bck
     const displayResult = async () => {
         const prediction = await normalizedPrediction;
         unNormalizedPrediction = prediction.mul(20000); // unNormalize: "cena/m"*20000
-        document.getElementById('result').innerHTML = tf.round(unNormalizedPrediction).dataSync()[0];
-        console.log('Prediction (un-normalized):', tf.round(unNormalizedPrediction).dataSync()[0]);
+        document.getElementById('predicted_price_per_m2').innerHTML = tf.round(unNormalizedPrediction).dataSync()[0];
+        document.getElementById('predicted_price').innerHTML = tf.round(unNormalizedPrediction.mul(tf.pow(10, tf.tensor(inputsTensor.dataSync()[1]).mul(tf.tensor(10))))).dataSync()[0];
+        console.log('Prediction (un-normalized):', tf.round(unNormalizedPrediction).dataSync()[0], tf.round(unNormalizedPrediction.mul(tf.pow(10, tf.tensor(inputsTensor.dataSync()[1]).mul(tf.tensor(10))))).dataSync()[0]);
     }
     displayResult();
-
 }
+
+
