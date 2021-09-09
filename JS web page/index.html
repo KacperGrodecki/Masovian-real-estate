@@ -33,17 +33,17 @@
         <ul>
                 <li>
                     <label for="userInput_lPokoi">Liczba pokoi</label> 
-                    <input type="text" id="userInput_lPokoi" placeholder="value" value="6"/>                        
+                    <input type="text" id="userInput_lPokoi" placeholder="value" value="7"/>                        
                 </li>                
 
                 <li>
                     <label for="userInput_powierzchnia_corr">Powierzchnia (m<sup>2</sup>)</label>
-                    <input type="text" id="userInput_powierzchnia_corr" placeholder="value" value="140"/>
+                    <input type="text" id="userInput_powierzchnia_corr" placeholder="value" value="300"/>
                 </li>
     
                 <li>
                     <label for="userInput_powierzchniaDzialki_corr">Powierzchnia działki (m<sup>2</sup>)</label>
-                    <input type="text" id="userInput_powierzchniaDzialki_corr" placeholder="value" value="100"/>
+                    <input type="text" id="userInput_powierzchniaDzialki_corr" placeholder="value" value="1000"/>
                 </li>
     
                 <li>
@@ -63,14 +63,14 @@
     
                 <li>
                     <label for="userInput_locationX">Szerokość geograficzna (<span>&#176;</span>)</label>
-                    <input type="text" id="userInput_locationY" placeholder="value" value="52"/>
+                    <input type="text" id="userInput_locationY" placeholder="value" value="52.2"/>
                 </li>
 
                 <li>
                     <label for="userInputSelect_rodzajZabudowy">Rodzaj zabudowy:</label>
                     <select id="userInputSelect_rodzajZabudowy" autocomplete="off">
                         <option value="0">0</option>
-                        <option value="1" selected="selected">bliźniak</option>
+                        <option value="1" selected="selected">wolnostojący</option>
                         <option value="2">dworek/pałac</option>
                         <option value="3">gospodarstwo</option>                                        
                         <option value="4">kamienica</option>
@@ -83,7 +83,7 @@
                     <label for="userInputSelect_materialBudynku">Materiał budynku:</label>
                     <select id="userInputSelect_materialBudynku" autocomplete="off">
                         <option value="0">0</option>
-                        <option value="1" selected="selected">beton</option>
+                        <option value="1" selected="selected">pustak</option>
                         <option value="2">beton komórkowy</option>
                         <option value="3">cegła</option>                                        
                         <option value="4">drewno</option>
@@ -99,7 +99,7 @@
                     <label for="userInputSelect_stanWykonczenia">Stan wykończenia:</label>
                     <select id="userInputSelect_stanWykonczenia" autocomplete="off">
                         <option value="0">0</option>
-                        <option value="1" selected="selected">do remontu</option>
+                        <option value="1" selected="selected">do zamieszkania</option>
                         <option value="2">do wykończenia</option>
                         <option value="3">do zamieszkania</option>                                        
                         <option value="4">stan surowy otwarty</option>
@@ -114,7 +114,7 @@
                         <option value="1">aluminiowe</option>
                         <option value="2">brak</option>
                         <option value="3">drewniane</option>                                        
-                        <option value="4" selected="selected">plastikowe</option>
+                        <option value="4" selected="selected">drewniane</option>
                     </select>    
                 </li>
     
@@ -134,11 +134,11 @@
         <!-- resulting prediction -->
 <<<<<<< HEAD
         <h3>Cena/m^2 (zł/m): <span id="result">...</span></h3>
-        <h3>With default values model should predict: 5404 zł/m^2</h3>
+        <h3>With default values model should predict: 5003 zł/m^2</h3>
 =======
         <h3>Cena za metr kwadratowy: <span id="predicted_price_per_m2">...</span> zł/m<sup>2</sup></h3><small>(default: 5405 zł/m<sup>2</sup>)</small>
         <div></div>
-        <h3>Cena: <span id="predicted_price">...</span> zł</h3><small>(default: 756648 zł)</small>
+        <h3>Cena: <span id="predicted_price">...</span> zł</h3><small>(default: 1500957 zł)</small>
 >>>>>>> b1aa0a8fb3fc63967d6ebcc2c3e9841f9aca1f89
         </form>
     </body>

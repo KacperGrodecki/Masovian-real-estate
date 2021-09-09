@@ -88,7 +88,7 @@ async function normalizeUserInput(inputsTensor) {
     inputsTensor_buffer.set(tf.pow(inputsTensor.sub(tf.fill(inputsTensor.shape, 1899)), 4).div(tf.tensor(3e8)).dataSync()[3], 3);   // 3 - ("rokBudowy_corr"-1899)^4/3e8
     inputsTensor_buffer.set(inputsTensor.div(tf.tensor(10)).dataSync()[4], 4);                                                      // 4 - "lPieter_crr"/10
     inputsTensor_buffer.set(inputsTensor.sub(tf.tensor(21)).div(tf.tensor(4)).dataSync()[5], 5);                                    // 5 - ("locationX"-21)/4"
-    inputsTensor_buffer.set(inputsTensor.sub(tf.tensor(52)).div(tf.tensor(1)).dataSync()[6], 6);                                    // 6 - ("locationY"-52)/2"
+    inputsTensor_buffer.set(inputsTensor.sub(tf.tensor(52)).div(tf.tensor(2)).dataSync()[6], 6);                                    // 6 - ("locationY"-52)/2"
 
     const inputsTensorNormalized = inputsTensor_buffer.toTensor();
     // console.log('inputsTensorNormalized:', inputsTensorNormalized.dataSync()[6])
