@@ -83,8 +83,8 @@ async function normalizeUserInput(inputsTensor) {
     // https://stackoverflow.com/questions/49802499/how-do-i-mutate-value-of-a-tensor-in-tensorflow-js
     const inputsTensor_buffer = tf.buffer(inputsTensor.shape, inputsTensor.dtype, inputsTensor.dataSync());
     inputsTensor_buffer.set(inputsTensor.dataSync()[0]/10, 0);                                                                      // 0 - "lPokoi"/10
-    inputsTensor_buffer.set(tf.log(inputsTensor).div(tf.log(10)).div(tf.tensor(10)).dataSync()[1], 1);                              // 1 - log10("powierzchnia_corr")/10
-    inputsTensor_buffer.set(tf.log(inputsTensor.add(tf.tensor(1))).div(tf.log(tf.tensor(10))).div(tf.tensor(14)).dataSync()[2], 2); // 2 - log10("powierzchniaDzialki_corr"+1)/14
+    inputsTensor_buffer.set(tf.log(inputsTensor).div(tf.tensor(10)).dataSync()[1], 1);                                              // 1 - ln("powierzchnia_corr")/10
+    inputsTensor_buffer.set(tf.log(inputsTensor.add(tf.tensor(1))).div(tf.tensor(14)).dataSync()[2], 2);                            // 2 - ln("powierzchniaDzialki_corr"+1)/14
     inputsTensor_buffer.set(tf.pow(inputsTensor.sub(tf.fill(inputsTensor.shape, 1899)), 4).div(tf.tensor(3e8)).dataSync()[3], 3);   // 3 - ("rokBudowy_corr"-1899)^4/3e8
     inputsTensor_buffer.set(inputsTensor.div(tf.tensor(10)).dataSync()[4], 4);                                                      // 4 - "lPieter_crr"/10
     inputsTensor_buffer.set(inputsTensor.sub(tf.tensor(21)).div(tf.tensor(4)).dataSync()[5], 5);                                    // 5 - ("locationX"-21)/4"
@@ -120,10 +120,13 @@ async function predict(loadedModel) {
     // https://dev.to/ramonak/javascript-how-to-access-the-return-value-of-a-promise-object-1bck
     const displayResult = async () => {
         const prediction = await normalizedPrediction;
-        unNormalizedPrediction = prediction.mul(20000); // unNormalize: "cena/m"*20000
-        document.getElementById('predicted_price_per_m2').innerHTML = tf.round(unNormalizedPrediction).dataSync()[0];
-        document.getElementById('predicted_price').innerHTML = tf.round(unNormalizedPrediction.mul(tf.pow(10, tf.tensor(inputsTensor.dataSync()[1]).mul(tf.tensor(10))))).dataSync()[0];
-        console.log('Prediction (un-normalized):', tf.round(unNormalizedPrediction).dataSync()[0], tf.round(unNormalizedPrediction.mul(tf.pow(10, tf.tensor(inputsTensor.dataSync()[1]).mul(tf.tensor(10))))).dataSync()[0]);
+        const e = 2.71828;
+        const unNormalizedPrediction = tf.round(prediction.mul(20000));                                                             // cena/m: "cena/m"_normalized * 20000
+        const price = tf.round(unNormalizedPrediction.mul(tf.pow(e, tf.tensor(inputsTensor.dataSync()[1]).mul(tf.tensor(10)))));    // price:  "cena/m" * 2^("powierzchnia_corr"_normalized*10)
+        
+        document.getElementById('predicted_price_per_m2').innerHTML = unNormalizedPrediction.dataSync()[0];
+        document.getElementById('predicted_price').innerHTML = price.dataSync()[0];
+        console.log('Prediction (un-normalized):', unNormalizedPrediction.dataSync()[0], price.dataSync()[0]);
     }
     displayResult();
 }
