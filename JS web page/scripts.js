@@ -31,12 +31,12 @@ function getUserInput() {
     valueParametersDict.forEach(
         (element, idx) => {
             let element_value = document.getElementById('userInput_'+element).value
-            inputsTensorValueParameters = tf.concat([inputsTensorValueParameters, tf.tensor([parseInt(element_value)])], 0) // parseInt(element_value)
-            // console.log(idx, ': ', 'userInput_'+element, ' = ', element_value)
+            inputsTensorValueParameters = tf.concat([inputsTensorValueParameters, tf.tensor([parseFloat(element_value)])], 0) //tu jest bład bo czasem jest float!!!
+            console.log(idx, ': ', 'userInput_'+element, ' = ', element_value)
         }
     )
-    // console.log('inputsTensorValueParameters:', inputsTensorValueParameters.shape);
-    // inputsTensorValueParameters.print();
+    //console.log('inputsTensorValueParameters:', inputsTensorValueParameters.print());
+    inputsTensorValueParameters.print();
 
     // Parameters selectable from drop-down list
     const listParametersDict = {
@@ -81,17 +81,20 @@ function getUserInput() {
 
 async function normalizeUserInput(inputsTensor) {
     // https://stackoverflow.com/questions/49802499/how-do-i-mutate-value-of-a-tensor-in-tensorflow-js
-    const inputsTensor_buffer = tf.buffer(inputsTensor.shape, inputsTensor.dtype, inputsTensor.dataSync());
+    const inputsTensor_buffer = tf.buffer(inputsTensor.shape, inputsTensor.dtype.float64, inputsTensor.dataSync());
     inputsTensor_buffer.set(inputsTensor.dataSync()[0]/10, 0);                                                                      // 0 - "lPokoi"/10
     inputsTensor_buffer.set(tf.log(inputsTensor).div(tf.log(10)).div(tf.tensor(10)).dataSync()[1], 1);                              // 1 - log10("powierzchnia_corr")/10
     inputsTensor_buffer.set(tf.log(inputsTensor.add(tf.tensor(1))).div(tf.log(tf.tensor(10))).div(tf.tensor(14)).dataSync()[2], 2); // 2 - log10("powierzchniaDzialki_corr"+1)/14
     inputsTensor_buffer.set(tf.pow(inputsTensor.sub(tf.fill(inputsTensor.shape, 1899)), 4).div(tf.tensor(3e8)).dataSync()[3], 3);   // 3 - ("rokBudowy_corr"-1899)^4/3e8
     inputsTensor_buffer.set(inputsTensor.div(tf.tensor(10)).dataSync()[4], 4);                                                      // 4 - "lPieter_crr"/10
     inputsTensor_buffer.set(inputsTensor.sub(tf.tensor(21)).div(tf.tensor(4)).dataSync()[5], 5);                                    // 5 - ("locationX"-21)/4"
-    inputsTensor_buffer.set(inputsTensor.sub(tf.tensor(52)).div(tf.tensor(2)).dataSync()[6], 6);                                    // 6 - ("locationY"-52)/2"
-
+    inputsTensor_buffer.set(inputsTensor.sub(tf.tensor(52)).div(tf.tensor(2)).dataSync()[6], 6);  									// 6 - ("locationY"-52)/2"
+	
+	//console.log('inputsTensor :', inputsTensor)
+	//console.log('inputsTensor buffer:', inputsTensor_buffer)
+	
     const inputsTensorNormalized = inputsTensor_buffer.toTensor();
-    // console.log('inputsTensorNormalized:', inputsTensorNormalized.dataSync()[6])
+    //console.log('inputsTensorNormalized:', inputsTensorNormalized.dataSync()[5])
     tf.slice(inputsTensorNormalized, 0, 7).print();
     // inputsTensorNormalized.print();
 
