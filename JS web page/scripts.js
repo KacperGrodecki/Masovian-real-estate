@@ -127,6 +127,7 @@ async function predict(loadedModel) {
         const unNormalizedPrediction = tf.round(prediction.mul(20000));                                                             // cena/m: "cena/m"_normalized * 20000
         const price = tf.round(unNormalizedPrediction.mul(tf.pow(e, tf.tensor(inputsTensor.dataSync()[1]).mul(tf.tensor(10)))));    // price:  "cena/m" * 2^("powierzchnia_corr"_normalized*10)
         
+		console.log('Prediction:',prediction.dataSync()[0]);
         document.getElementById('predicted_price_per_m2').innerHTML = unNormalizedPrediction.dataSync()[0];
         document.getElementById('predicted_price').innerHTML = price.dataSync()[0];
         console.log('Prediction (un-normalized):', unNormalizedPrediction.dataSync()[0], price.dataSync()[0]);
