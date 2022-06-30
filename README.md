@@ -9,5 +9,5 @@ the apartment is in the file mazowieckie_colab_DNN_mieszkania.ipynb.
 Analizowieckie firmowe is in the file mazowiec_colab_rysi_analiza_analiza_oprogramowanie_pliku.
 the apartment analysis is available in the file mazowiec_colab_rysunkiu_i_analiza_wczytanieplik.ipynb
 
-##about authors' role
+## about authors' role
 Maciej Kozubal wrote part responsible for taking coordinations of each place-cities and others. It is strongly commented part of code
