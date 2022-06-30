@@ -1,3 +1,4 @@
+#code by MAciej Kozubal
 # Info
 '''
 * https://www.wikidata.org/wiki/Wikidata:SPARQL_tutorial
